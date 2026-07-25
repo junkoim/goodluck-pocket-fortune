@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>GoodLuck Pocket v4.0 | AIタロットと小さな幸運</title>
+  <meta name="description" content="GoodLuck Pocketは、タロットカードをモチーフに、今日の市場、季節、曜日、登山と自然の小さな幸運を静かに読み解くAI占いサイトです。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="theme-color" content="#080b1d">
+  <link rel="canonical" href="/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="GoodLuck Pocket">
+  <meta property="og:title" content="GoodLuck Pocket v4.0 | AIタロットと小さな幸運">
+  <meta property="og:description" content="今日のカードから、トレード運、ゴールド運、FX運、登山の運、今日の一歩を静かな詩のように届けます。">
+  <meta property="og:image" content="/og-image.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GoodLuck Pocket v4.0 | AIタロットと小さな幸運">
+  <meta name="twitter:description" content="今日のカードから、トレード運、ゴールド運、FX運、登山の運、今日の一歩を静かな詩のように届けます。">
+  <meta name="twitter:image" content="/og-image.webp">
+  <link rel="preload" href="/cards/back.webp" as="image" type="image/webp">
+  <link rel="stylesheet" href="/style.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "GoodLuck Pocket",
+    "applicationCategory": "EntertainmentApplication",
+    "operatingSystem": "Web",
+    "isAccessibleForFree": true,
+    "description": "タロットカードをモチーフに、ゴールド相場、FXトレード、登山と自然の小さな幸運を読み解くAI占いサイト。",
+    "inLanguage": "ja"
+  }
+  </script>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">GOODLUCK POCKET</p>
+        <h1>AIタロット占い</h1>
+        <p class="lead">金色の相場と山道の風。そのあいだに落ちている今日の小さな幸運を読みます。</p>
+      </div>
+    </header>
+
+    <section class="morning-note" aria-label="今日の入口">
+      <p class="eyebrow">MIDNIGHT READING</p>
+      <blockquote>カードをめくるまで、答えは静かに眠っています。</blockquote>
+    </section>
+
+    <section class="panel" id="formPanel" aria-labelledby="formTitle">
+      <div class="section-head">
+        <span>01</span>
+        <div><p>FORTUNE INPUT</p><h2 id="formTitle">今日の占いを始める</h2></div>
+      </div>
+
+      <form id="fortuneForm" novalidate>
+        <label class="field">
+          <span>生年月日</span>
+          <input type="date" name="birthDate" required autocomplete="bday">
+        </label>
+
+        <fieldset class="field">
+          <legend>性別</legend>
+          <div class="choices">
+            <label><input type="radio" name="gender" value="male" required><span>男性</span></label>
+            <label><input type="radio" name="gender" value="female"><span>女性</span></label>
+            <label><input type="radio" name="gender" value="other"><span>その他</span></label>
+            <label><input type="radio" name="gender" value="unspecified"><span>回答しない</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>血液型</legend>
+          <div class="choices compact">
+            <label><input type="radio" name="bloodType" value="A" required><span>A</span></label>
+            <label><input type="radio" name="bloodType" value="B"><span>B</span></label>
+            <label><input type="radio" name="bloodType" value="O"><span>O</span></label>
+            <label><input type="radio" name="bloodType" value="AB"><span>AB</span></label>
+            <label><input type="radio" name="bloodType" value="unknown"><span>不明</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>利き手</legend>
+          <div class="choices">
+            <label><input type="radio" name="handedness" value="right" required><span>右利き</span></label>
+            <label><input type="radio" name="handedness" value="left"><span>左利き</span></label>
+            <label><input type="radio" name="handedness" value="both"><span>両利き</span></label>
+            <label><input type="radio" name="handedness" value="unknown"><span>不明</span></label>
+          </div>
+        </fieldset>
+
+        <p class="privacy">入力内容は占い結果の生成にのみ使用します。このサイトでは保存しません。</p>
+        <p class="form-error" id="formError" role="alert"></p>
+        <button class="primary" type="submit"><span>カードを選ぶ</span><b aria-hidden="true">→</b></button>
+      </form>
+    </section>
+
+    <section class="panel result" id="resultPanel" aria-live="polite" hidden>
+      <div class="section-head">
+        <span>02</span>
+        <div><p>TODAY'S ARCANA</p><h2>カードをクリックしてめくる</h2></div>
+      </div>
+      <p class="date" id="resultDate"></p>
+      <div class="tarot-stage">
+        <p class="tarot-label">今日のカード</p>
+        <button class="tarot-flip" id="tarotFlip" type="button" aria-label="カードをめくる" aria-pressed="false">
+          <span class="tarot-inner" id="tarotInner">
+            <img id="tarotImage" src="/cards/back.webp" alt="タロットカードの裏面" width="768" height="1075" loading="eager" decoding="async">
+            <span class="tarot-fallback" id="tarotFallback" hidden aria-hidden="true"><b id="tarotFallbackName">GoodLuck Pocket</b><small>TAROT</small></span>
+            <span class="sr-only" id="tarotKeyword"></span>
+          </span>
+        </button>
+        <p class="flip-hint" id="flipHint">カードをクリックすると表面が現れます</p>
+      </div>
+
+      <div class="reading" id="reading" hidden>
+        <div class="card-name">
+          <span id="tarotNumber"></span>
+          <strong id="tarotName"></strong>
+          <small id="tarotOrientation"></small>
+          <p class="card-keyword"><span>KEYWORD</span><b id="cardKeyword"></b></p>
+        </div>
+        <div class="reading-letter" id="fortuneDetails"></div>
+        <div class="luck-row compact-luck">
+          <div><span>LUCKY COLOR</span><strong id="luckyColor"></strong></div>
+          <div><span>LUCKY NUMBER</span><strong id="luckyNumber"></strong></div>
+        </div>
+        <p class="result-disclaimer">
+          この占いは娯楽を目的としたAIコンテンツです。トレード運の星は勝率や利益を示すものではなく、その日の心理や姿勢を見つめるための目安です。
+          投資判断や登山の安全判断を保証するものではありません。実際の取引では資金管理を行い、登山では天候・装備・登山道の情報を確認してください。
+        </p>
+        <div class="result-actions">
+          <button class="secondary" id="shareButton" type="button">Xで結果を共有</button>
+          <button class="text-button" id="retryButton" type="button">もう一度占う</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="about">
+      <p class="eyebrow">ABOUT</p>
+      <h2>金色の相場と、山道の小さな幸運を読む</h2>
+      <p>GoodLuck Pocketは、大アルカナ22枚をモチーフにしたAI占いサイトです。XAUUSD、FXトレード、登山と自然に向き合う一日の姿勢を、静かな詩のように届けます。</p>
+    </section>
+
+    <footer>
+      <p>本コンテンツは娯楽および自己理解の参考を目的としています。専門的判断を代替するものではありません。</p>
+      <small>&copy; GoodLuck Pocket</small>
+    </footer>
+  </main>
+  <div class="loading" id="loading" hidden><div class="loader"></div><p>今日の一枚を選んでいます</p></div>
+  <script src="/app.js" defer></script>
+</body>
+</html>
