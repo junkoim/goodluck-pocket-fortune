@@ -17,7 +17,7 @@ const readingSections = [
   ['trade', 'TRADE FORTUNE', 'トレード運'],
   ['goldFortune', 'GOLD', 'ゴールド運'],
   ['fxFortune', 'FX', 'FX運'],
-  ['mountainFortune', 'MOUNTAIN', '登山の運'],
+  ['mountainFortune', 'MOUNT', '登山の運'],
   ['action', 'ONE STEP', '今日の一歩'],
   ['poem', 'POEM', 'カードからのポエム'],
   ['todayMessage', 'MESSAGE', '今日の言葉']

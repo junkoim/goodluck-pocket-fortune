@@ -1,4 +1,4 @@
-# GoodLuck Pocket v4.1
+# GoodLuck Pocket v4.1.1
 
 タロットカードをモチーフに、今日の市場、季節、曜日、登山・自然・小さな幸運を静かに読み解くAI占いサイトです。Cloudflare Workers + Static Assets + Workers AIに対応しています。
 
@@ -72,6 +72,13 @@ v4.0では将来の市場データ連携に備え、任意の環境変数 `MARKE
 - `npm run check` と `npm run build` がエラーなく完了する
 
 ## 変更履歴
+
+### v4.1.1
+
+・ユーザー向けHTMLとフロント表示文言のAI表記を再確認  
+・ページタイトル、meta、OGP、Twitter Card、JSON-LDにバージョン番号を表示しない構成を維持  
+・共有文言、About、フッター、免責文の表示文言を確認  
+・内部のCloudflare Workers AI構成は維持
 
 ### v4.1
 
