@@ -12,7 +12,7 @@ const tarotFlip = document.querySelector('#tarotFlip');
 const flipHint = document.querySelector('#flipHint');
 
 const BACK_IMAGE = '/cards/back.webp';
-const readingSections = [
+const weekdaySections = [
   ['fortune', 'TODAY', '今日の運勢'],
   ['trade', 'TRADE FORTUNE', 'トレード運'],
   ['goldFortune', 'GOLD', 'ゴールド運'],
@@ -21,6 +21,16 @@ const readingSections = [
   ['action', 'ONE STEP', '今日の一歩'],
   ['poem', 'POEM', 'カードからのポエム'],
   ['todayMessage', 'MESSAGE', '今日の言葉']
+];
+const weekendSections = [
+  ['weekend', 'CLOSED', '相場は休場です'],
+  ['weeklyReflection', 'REVIEW', '今週の振り返り'],
+  ['nextTradeStep', 'NEXT STEP', '次の取引日に向けた一歩'],
+  ['fortune', 'TODAY', '今日の運勢'],
+  ['mountainFortune', 'MOUNT', '山の運勢'],
+  ['smallLuck', 'LUCK', '小さな幸運'],
+  ['poem', 'POEM', '詩'],
+  ['todayMessage', 'MESSAGE', '今日のメッセージ']
 ];
 
 let currentResult = null;
@@ -86,8 +96,9 @@ function normalizeCardPath(path) {
 function renderReadingSections(result) {
   const container = document.querySelector('#fortuneDetails');
   container.textContent = '';
+  const sections = result.isWeekend ? weekendSections : weekdaySections;
 
-  for (const [key, labelEn, label] of readingSections) {
+  for (const [key, labelEn, label] of sections) {
     const section = document.createElement('section');
     section.className = `reading-block reading-${key}`;
 
@@ -102,6 +113,11 @@ function renderReadingSections(result) {
     section.append(heading);
     if (key === 'trade') {
       section.append(renderTradeFortune(result));
+    } else if (key === 'weekend') {
+      const body = document.createElement('div');
+      body.className = 'fortune-text weekend-text';
+      body.textContent = [result.weekendNote, result.weekendMessage].filter(Boolean).join('\n\n');
+      section.append(body);
     } else {
       const body = document.createElement(key === 'poem' ? 'blockquote' : 'div');
       body.className = 'fortune-text';
@@ -222,7 +238,9 @@ document.querySelector('#retryButton').addEventListener('click', () => {
 
 document.querySelector('#shareButton').addEventListener('click', () => {
   const result = JSON.parse(resultPanel.dataset.share || '{}');
-  const text = `GoodLuck Pocket 今日のタロット\n${result.cardNumber || ''} ${result.cardName || ''}\n${result.orientation || ''}\nトレード運 ${'★'.repeat(clampTradeScore(result.tradeScore))}${'☆'.repeat(5 - clampTradeScore(result.tradeScore))}\n\n${String(result.fortune || '').split('\n').slice(0, 4).join('\n')}\n\n#GoodLuckPocket #タロット占い`;
+  const weekdayText = `GoodLuck Pocket 今日のタロット\n${result.cardNumber || ''} ${result.cardName || ''}\n${result.orientation || ''}\nトレード運 ${'★'.repeat(clampTradeScore(result.tradeScore))}${'☆'.repeat(5 - clampTradeScore(result.tradeScore))}\n\n${String(result.fortune || '').split('\n').slice(0, 4).join('\n')}\n\n#GoodLuckPocket #タロット占い`;
+  const weekendText = `GoodLuck Pocket 今日のタロット\n${result.cardNumber || ''} ${result.cardName || ''}\n${result.orientation || ''}\n\n相場は休場です\n${String(result.weekendMessage || result.fortune || '').split('\n').slice(0, 5).join('\n')}\n\n#GoodLuckPocket #タロット占い`;
+  const text = result.isWeekend ? weekendText : weekdayText;
   const url = new URL('https://twitter.com/intent/tweet');
   url.searchParams.set('text', text);
   url.searchParams.set('url', location.href);

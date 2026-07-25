@@ -8,6 +8,7 @@ interface Env {
   ASSETS: Fetcher;
   AI?: Ai;
   MARKET_CONTEXT_JSON?: string;
+  FORTUNE_DATE_OVERRIDE?: string;
 }
 
 type Gender = "male" | "female" | "other" | "unspecified";
@@ -48,7 +49,14 @@ interface ReadingJson {
   lotManagementWarning: string;
   goldFortune: string;
   fxFortune: string;
+  isWeekend: boolean;
+  weekendTitle: string;
+  weekendNote: string;
+  weekendMessage: string;
+  weeklyReflection: string;
+  nextTradeStep: string;
   mountainFortune: string;
+  smallLuck: string;
   action: string;
   poem: string;
   todayMessage: string;
@@ -77,6 +85,7 @@ interface DailyContext {
   date: string;
   weekday: string;
   season: "春" | "夏" | "秋" | "冬";
+  isWeekend: boolean;
   market: {
     available: boolean;
     watched: readonly string[];
@@ -113,6 +122,52 @@ const CARDS: readonly CardData[] = [
 const LUCKY_COLORS = ["薄明の青", "古い金色", "朝霧の白", "深い紫", "濡れた石の黒", "木漏れ日の緑", "夕暮れの銅色", "星明かりの銀"] as const;
 const WATCHED_MARKETS = ["Gold", "BTC", "USDJPY", "VIX", "FOMC", "CPI", "雇用統計"] as const;
 const TODAY_MESSAGE_SUFFIXES = ["今日も一歩ずつ", "焦らず拾う", "小さく整える", "静かに待つ", "余白を残す"] as const;
+const WEEKEND_MESSAGES = [
+  "相場が眠る日は\n無理に答えを探さず\n今週歩いた道を振り返る日",
+  "チャートを閉じたあとに\n見えてくるものがある\n今日は勝ち負けではなく\n心の形を整える日",
+  "動かない相場を\n無理に動かそうとしなくていい\n休むことも\nひとつの立派な判断",
+  "次の波を待つあいだ\n今週の足跡を見直す\n焦らず準備した時間が\n来週の自分を助けてくれる",
+  "利益だけではなく\n守れたルールも数えてみる\n失わなかったものの中に\n小さな幸運は残っている",
+  "今日はエントリーではなく\n記録を整える日\n一行の反省が\n次の一手を静かに変える",
+  "相場が止まる週末は\n自分の呼吸を取り戻す時間\n急がなくても\n市場はまた開く",
+  "見送った取引も\n守った資金も\nすべて今週の成果\n今日はそれを認める日",
+  "山を下りたあとに\n道の険しさがわかるように\nチャートを閉じたあとに\n自分の癖が見えてくる",
+  "来週の答えを\n今日決めなくてもいい\n必要なのは予測より\n静かに待てる準備",
+  "相場のない日に\n無理に刺激を探さない\n何もしない時間が\n判断を澄ませてくれる",
+  "今週の利益も損失も\nいったん机の上に置く\n今日は数字から離れて\n自分を整える日",
+  "勝てた理由より\nルールを守れた理由を振り返る\n再現できる一歩だけを\n来週へ持っていく",
+  "相場は休んでいる\nだから自分も\n少しだけ肩の力を抜いていい\n休息は後退ではない",
+  "次のチャンスは\n今日つかまなくていい\n待てる人のところへ\n相場はまた戻ってくる",
+  "週末は\n未来を当てる日ではなく\n過去から静かに学ぶ日\n急がず一枚ずつ記録をめくる"
+] as const;
+const WEEKLY_REFLECTIONS = [
+  "ルールを守れた場面を\n一つだけ思い出す",
+  "焦って入った取引が\nなかったか静かに振り返る",
+  "見送れた判断を\n成果として認める",
+  "利益よりも\n再現できる行動を探す",
+  "損失の中から\n一つだけ学びを残す",
+  "来週やらないことを\n一つ決める",
+  "チャートを見ない時間を\n少しだけつくる",
+  "取引記録を\n一件だけ整理する",
+  "守れた資金を\n小さな成果として数える",
+  "感情が先に走った場面を\n責めずに書き留める",
+  "今週の一番静かな判断を\n来週へ持っていく",
+  "利確と損切りの線を\nもう一度だけ読み返す"
+] as const;
+const NEXT_TRADE_STEPS = [
+  "来週の重要指標を確認する",
+  "今週のベストトレードを一件見直す",
+  "最大ロットを紙に書いておく",
+  "エントリー条件を一文で確認する",
+  "月曜日に避ける時間帯を決めておく",
+  "チャートを閉じて十分に休む",
+  "利確と損切りのルールを読み返す",
+  "取引記録を一件だけ整える",
+  "来週やらないことを一つ書く",
+  "アラートを一つだけ見直す",
+  "使う通貨ペアを絞っておく",
+  "休む時間を先に予定へ入れる"
+] as const;
 
 const DEFAULT_VARIANT: VariantPack = {
   images: ["朝霧", "木漏れ日", "沢の音", "濡れた石", "尾根の風"],
@@ -160,7 +215,8 @@ function json(data: unknown, status = 200, cacheControl = "no-store"): Response 
   });
 }
 
-function getJstDate(): string {
+function getJstDate(env?: Env): string {
+  if (env?.FORTUNE_DATE_OVERRIDE && /^\d{4}-\d{2}-\d{2}$/.test(env.FORTUNE_DATE_OVERRIDE)) return env.FORTUNE_DATE_OVERRIDE;
   return new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
 }
 
@@ -194,6 +250,7 @@ function seasonNatureNote(season: DailyContext["season"]): string {
 function buildDailyContext(date: string, env: Env): DailyContext {
   const weekday = getWeekday(date);
   const season = getSeason(date);
+  const isWeekend = weekday === "土曜日" || weekday === "日曜日";
   const notes = [weekdayMarketNote(weekday), seasonNatureNote(season)];
 
   if (env.MARKET_CONTEXT_JSON) {
@@ -203,6 +260,7 @@ function buildDailyContext(date: string, env: Env): DailyContext {
         date,
         weekday,
         season,
+        isWeekend,
         market: {
           available: true,
           watched: parsed.watched?.length ? parsed.watched.slice(0, 12) : WATCHED_MARKETS,
@@ -219,6 +277,7 @@ function buildDailyContext(date: string, env: Env): DailyContext {
     date,
     weekday,
     season,
+    isWeekend,
     market: {
       available: false,
       watched: WATCHED_MARKETS,
@@ -230,7 +289,7 @@ function buildDailyContext(date: string, env: Env): DailyContext {
 
 function dailyCacheKey(origin: string, date: string, input: FortuneRequest): Request {
   const key = [
-    "v4.0",
+    "weekend-v1",
     date,
     input.birthDate,
     input.gender,
@@ -331,6 +390,34 @@ function seasonMountainLine(season: DailyContext["season"], h: number[]): string
     "冬": ["霜", "雪の気配", "静かな森", "白い息", "凍った石"]
   } as const;
   return pick(seasonal[season], h, 16);
+}
+
+function weekendMessageFor(card: CardData, h: number[]): string {
+  const base = pick(WEEKEND_MESSAGES, h, 17);
+  const variant = variantFor(card);
+  const echo = pick(variant.poemLines, h, 18);
+  return compactLines([base, "", echo]);
+}
+
+function weeklyReflectionFor(card: CardData, h: number[]): string {
+  const base = pick(WEEKLY_REFLECTIONS, h, 19);
+  const focus = pick(variantFor(card).tradeFocus, h, 20);
+  return compactLines([base, "", `${focus}を\n来週へ静かに残す`]);
+}
+
+function nextTradeStepFor(h: number[]): string {
+  return pick(NEXT_TRADE_STEPS, h, 21);
+}
+
+function smallLuckFor(card: CardData, context: DailyContext, h: number[]): string {
+  const variant = variantFor(card);
+  const scene = pick(variant.images, h, 22);
+  const seasonal = seasonMountainLine(context.season, h);
+  return compactLines([
+    `${context.season}の${seasonal}`,
+    `${scene}のそばに`,
+    "小さな幸運を置いておく"
+  ]);
 }
 
 function tradeScoreFor(card: CardData, orientation: Orientation, h: number[]): number {
@@ -463,6 +550,12 @@ function fallbackReading(card: CardData, orientation: Orientation, h: number[], 
       "損切りの線を",
       "先に置く"
     ]),
+    isWeekend: context.isWeekend,
+    weekendTitle: "相場は休場です",
+    weekendNote: "土日は、次の取引に向けて心と記録を整える日です。",
+    weekendMessage: weekendMessageFor(card, h),
+    weeklyReflection: weeklyReflectionFor(card, h),
+    nextTradeStep: nextTradeStepFor(h),
     mountainFortune: compactLines([
       mountainLine,
       "",
@@ -475,6 +568,7 @@ function fallbackReading(card: CardData, orientation: Orientation, h: number[], 
       "天候と道を確認し",
       "安全を近くに置く"
     ]),
+    smallLuck: smallLuckFor(card, context, h),
     action: isUpright
       ? "チャートを閉じて\n空を見る"
       : "一度止まり\n靴紐を結び直す",
@@ -510,7 +604,14 @@ function mergeReading(base: ReadingJson, ai: Partial<ReadingJson> | null): Readi
     lotManagementWarning: tradeScore < 3 ? normalizeText(ai.lotManagementWarning, lotWarningFor(tradeScore), 12) : "",
     goldFortune: normalizeText(ai.goldFortune, base.goldFortune, 24),
     fxFortune: normalizeText(ai.fxFortune, base.fxFortune, 24),
+    isWeekend: base.isWeekend,
+    weekendTitle: base.weekendTitle,
+    weekendNote: base.weekendNote,
+    weekendMessage: normalizeText(ai.weekendMessage, base.weekendMessage, 18),
+    weeklyReflection: normalizeText(ai.weeklyReflection, base.weeklyReflection, 12),
+    nextTradeStep: normalizeText(ai.nextTradeStep, base.nextTradeStep, 8),
     mountainFortune: normalizeText(ai.mountainFortune, base.mountainFortune, 24),
+    smallLuck: normalizeText(ai.smallLuck, base.smallLuck, 10),
     action: normalizeText(ai.action, base.action, 8),
     poem: normalizeText(ai.poem, base.poem, 20),
     todayMessage: normalizeText(ai.todayMessage, base.todayMessage, 8),
@@ -633,6 +734,30 @@ FX運はゴールド運と分けてください。
 連敗後の休憩
 を中心にしてください。
 
+weekendModeがtrueの場合は土日専用の読み方にしてください。
+通常のトレード評価、ゴールド運、FX運を主役にせず
+休息
+振り返り
+記録
+準備
+規律
+焦らないこと
+を中心にしてください。
+土日は相場が休んでいる時間として扱い
+取引を促す文章を書かないでください。
+ロング
+ショート
+買い時
+売り時
+エントリー
+上昇
+下落
+価格予想
+は書かないでください。
+星評価やロット管理警告は画面に表示されません。
+weekendMessage、weeklyReflection、nextTradeStep、smallLuckを
+静かで短い文章として返してください。
+
 登山の運はGoodLuck Pocketの大切な特徴です。
 山頂ばかりを書かず
 朝霧、木漏れ日、沢、小鳥、花、石、尾根、雨、虫、森など
@@ -665,7 +790,16 @@ recommendArticleは将来のブログ連携用です。
             today: {
               date: context.date,
               weekday: context.weekday,
-              season: context.season
+              season: context.season,
+              weekendMode: context.isWeekend
+            },
+            weekendFallback: {
+              title: fallback.weekendTitle,
+              note: fallback.weekendNote,
+              message: fallback.weekendMessage,
+              weeklyReflection: fallback.weeklyReflection,
+              nextTradeStep: fallback.nextTradeStep,
+              smallLuck: fallback.smallLuck
             },
             marketContext: context.market,
             scene: card.scene,
@@ -693,7 +827,14 @@ recommendArticleは将来のブログ連携用です。
               lotManagementWarning: "",
               goldFortune: "ゴールド運",
               fxFortune: "FX運",
+              isWeekend: false,
+              weekendTitle: "相場は休場です",
+              weekendNote: "土日は、次の取引に向けて心と記録を整える日です。",
+              weekendMessage: "週末専用メッセージ",
+              weeklyReflection: "今週の振り返り",
+              nextTradeStep: "次の取引日に向けた一歩",
               mountainFortune: "登山の運",
+              smallLuck: "小さな幸運",
               action: "今日の一歩",
               poem: "カードからのポエム",
               todayMessage: "今日の言葉",
@@ -717,9 +858,9 @@ recommendArticleは将来のブログ連携用です。
 }
 
 async function buildFortune(input: FortuneRequest, env: Env): Promise<FortuneResult> {
-  const date = getJstDate();
+  const date = getJstDate(env);
   const context = buildDailyContext(date, env);
-  const h = await hashToNumbers(`${date}|${input.birthDate}|${input.gender}|${input.bloodType}|${input.handedness}|v4.0`);
+  const h = await hashToNumbers(`${date}|${input.birthDate}|${input.gender}|${input.bloodType}|${input.handedness}|weekend-v1`);
   const card = CARDS[h[0] % CARDS.length];
   const orientation: Orientation = (h[1] % 2 === 0) ? "正位置" : "逆位置";
   const fallback = fallbackReading(card, orientation, h, context);
@@ -745,7 +886,7 @@ export default {
       try {
         const input = validate(await request.json());
         if (!input) return json({ error: "入力内容を確認してください。" }, 400);
-        const date = getJstDate();
+        const date = getJstDate(env);
         const cacheKey = dailyCacheKey(url.origin, date, input);
         const cached = await caches.default.match(cacheKey).catch(() => undefined);
         if (cached) return json(await cached.json());
