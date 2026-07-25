@@ -222,7 +222,7 @@ document.querySelector('#retryButton').addEventListener('click', () => {
 
 document.querySelector('#shareButton').addEventListener('click', () => {
   const result = JSON.parse(resultPanel.dataset.share || '{}');
-  const text = `GoodLuck Pocket 今日のAIタロット\n${result.cardNumber || ''} ${result.cardName || ''}\n${result.orientation || ''}\nトレード運 ${'★'.repeat(clampTradeScore(result.tradeScore))}${'☆'.repeat(5 - clampTradeScore(result.tradeScore))}\n\n${String(result.fortune || '').split('\n').slice(0, 4).join('\n')}\n\n#GoodLuckPocket #AIタロット`;
+  const text = `GoodLuck Pocket 今日のタロット\n${result.cardNumber || ''} ${result.cardName || ''}\n${result.orientation || ''}\nトレード運 ${'★'.repeat(clampTradeScore(result.tradeScore))}${'☆'.repeat(5 - clampTradeScore(result.tradeScore))}\n\n${String(result.fortune || '').split('\n').slice(0, 4).join('\n')}\n\n#GoodLuckPocket #タロット占い`;
   const url = new URL('https://twitter.com/intent/tweet');
   url.searchParams.set('text', text);
   url.searchParams.set('url', location.href);
